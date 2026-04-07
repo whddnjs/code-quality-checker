@@ -1,0 +1,53 @@
+import * as ts from "typescript";
+import { RuleContext, pushIssue } from "../types";
+
+/**
+ * 함수 단위로 최대 중첩 깊이를 측정.
+ * 중첩 기여 노드: if/for/forIn/forOf/while/doWhile/switch/try/catch/block-as-statement.
+ * 함수 본문 자체는 깊이 0부터 시작.
+ */
+const NEST_KINDS = new Set<ts.SyntaxKind>([
+  ts.SyntaxKind.IfStatement,
+  ts.SyntaxKind.ForStatement,
+  ts.SyntaxKind.ForInStatement,
+  ts.SyntaxKind.ForOfStatement,
+  ts.SyntaxKind.WhileStatement,
+  ts.SyntaxKind.DoStatement,
+  ts.SyntaxKind.SwitchStatement,
+  ts.SyntaxKind.TryStatement,
+  ts.SyntaxKind.CatchClause,
+]);
+
+function isFnLike(node: ts.Node): boolean {
+  return (
+    ts.isFunctionDeclaration(node) ||
+    ts.isMethodDeclaration(node) ||
+    ts.isFunctionExpression(node) ||
+    ts.isArrowFunction(node) ||
+    ts.isConstructorDeclaration(node) ||
+    ts.isGetAccessorDeclaration(node) ||
+    ts.isSetAccessorDeclaration(node)
+  );
+}
+
+export function checkNestingDepth(node: ts.Node, ctx: RuleContext): void {
+  if (!ctx.config.nestingDepth) return;
+  if (!isFnLike(node)) return;
+  const body = (node as ts.FunctionLikeDeclaration).body;
+  if (!body || !ts.isBlock(body)) return;
+
+  let max = 0;
+  const walk = (n: ts.Node, depth: number): void => {
+    // 내부 함수는 별도 검사 대상이므로 건너뜀 (바깥 함수 깊이 오염 방지)
+    if (n !== node && isFnLike(n)) return;
+    const nextDepth = NEST_KINDS.has(n.kind) ? depth + 1 : depth;
+    if (nextDepth > max) max = nextDepth;
+    ts.forEachChild(n, (c) => walk(c, nextDepth));
+  };
+  walk(body, 0);
+
+  const limit = ctx.thresholds.nestingDepth;
+  if (max > limit) {
+    pushIssue(ctx, "nestingDepth", node, `최대 중첩 깊이 ${max} (임계값 ${limit})`);
+  }
+}

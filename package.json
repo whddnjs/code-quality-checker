@@ -1,0 +1,177 @@
+{
+  "name": "code-quality-checker",
+  "displayName": "Code Quality Checker",
+  "description": "TypeScript 코드 품질 간편 점검 - 빈 메소드, 미사용 import, TODO/console, switch/catch/any 등",
+  "version": "0.0.2",
+  "publisher": "jw",
+  "license": "MIT",
+  "author": "whddnjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whddnjs/code-quality-checker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/whddnjs/code-quality-checker/issues"
+  },
+  "homepage": "https://github.com/whddnjs/code-quality-checker#readme",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codeQuality.run",
+        "title": "Code Quality: Run Analysis"
+      },
+      {
+        "command": "codeQuality.showReport",
+        "title": "Code Quality: Show Last Report"
+      }
+    ],
+    "configuration": {
+      "title": "Code Quality Checker",
+      "properties": {
+        "codeQuality.includeFolders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "검사할 폴더 목록 (워크스페이스 루트 기준 상대경로). 비어있으면 실행 시마다 선택 프롬프트 표시."
+        },
+        "codeQuality.excludeGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/coverage/**",
+            "**/.git/**"
+          ],
+          "description": "검사에서 제외할 glob 패턴."
+        },
+        "codeQuality.rules.emptyMethod": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.emptyMethodIncludeAnonymous": {
+          "type": "boolean",
+          "default": false,
+          "description": "true면 빈 메소드 검사에 콜백/익명함수/생성자/getter/setter도 포함. 기본은 이름있는 함수/메소드만 검사."
+        },
+        "codeQuality.rules.emptyMethodIgnoreCommented": {
+          "type": "boolean",
+          "default": false,
+          "description": "true면 본문이 비어있어도 안에 주석이 있으면 검사에서 제외 (상속 훅 등 의도된 빈 본문 봐주기)."
+        },
+        "codeQuality.rules.unusedImport": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.unusedVariable": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.unusedFunction": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.unusedVariableIncludeSpec": {
+          "type": "boolean",
+          "default": false,
+          "description": "true면 *.spec.ts / *.spec.tsx 파일도 사용하지 않는 변수 검사 대상에 포함."
+        },
+        "codeQuality.rules.todoComment": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.consoleCall": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.consoleMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "log"
+          ],
+          "description": "consoleCall 규칙이 잡을 console 메소드 목록. 예: ['log','warn','error']"
+        },
+        "codeQuality.rules.mergeConflict": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.unusedFile": {
+          "type": "boolean",
+          "default": false
+        },
+        "codeQuality.rules.smallSwitch": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.emptyCatch": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.anyType": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.paramCount": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.functionLength": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.rules.nestingDepth": {
+          "type": "boolean",
+          "default": true
+        },
+        "codeQuality.thresholds.paramCount": {
+          "type": "number",
+          "default": 4,
+          "description": "함수 파라미터 개수 임계값 (초과 시 경고)."
+        },
+        "codeQuality.thresholds.functionLength": {
+          "type": "number",
+          "default": 50,
+          "description": "함수 라인 수 임계값 (초과 시 경고)."
+        },
+        "codeQuality.thresholds.nestingDepth": {
+          "type": "number",
+          "default": 4,
+          "description": "중첩 블록 깊이 임계값 (초과 시 경고)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "typecheck": "tsc -p ./ --noEmit",
+    "bundle": "node build.js",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run typecheck && npm run bundle",
+    "package": "vsce package --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.4.0"
+  }
+}
