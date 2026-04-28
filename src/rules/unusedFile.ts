@@ -12,10 +12,11 @@ import { Issue } from "../types";
  * 엔트리 포인트로 취급해 제외하는 파일:
  *   - `index.ts` / `index.tsx`      (모듈 엔트리)
  *   - `main.ts` / `main.tsx`        (앱 엔트리)
- *   - `*.spec.ts` / `*.spec.tsx`    (테스트 - 보통 다른 곳에서 import되지 않음)
- *   - `*.test.ts` / `*.test.tsx`    (테스트)
+ *   - `*.spec.ts(x)` / `*.test.ts(x)` / `*.e2e.ts(x)` (테스트 — 다른 곳에서 import되지 않음)
  *   - `*.d.ts`                      (전역 타입 선언)
  *   - `*.module.ts` (Angular/NestJS 모듈 루트)
+ *   - `*.stories.ts(x)` (Storybook — 빌드 도구가 자동 수집)
+ *   - `*.config.ts` / `*.config.tsx` (vite/webpack/rollup/jest 등 빌드 도구가 직접 읽음)
  *
  * 제한:
  *   - 비-상대 경로(`react`, `@scope/foo`, tsconfig paths alias)는 해석하지 않음.
@@ -29,8 +30,11 @@ const ENTRY_PATTERNS: RegExp[] = [
   /(?:^|[\\/])main\.tsx?$/,
   /\.spec\.tsx?$/,
   /\.test\.tsx?$/,
+  /\.e2e\.tsx?$/,
   /\.d\.ts$/,
   /\.module\.ts$/,
+  /\.stories\.tsx?$/,
+  /\.config\.tsx?$/,
 ];
 
 export function isEntryFile(filePath: string): boolean {

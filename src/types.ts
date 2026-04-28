@@ -44,6 +44,8 @@ export interface RuleConfig {
   consoleCall: boolean;
   smallSwitch: boolean;
   emptyCatch: boolean;
+  /** true일 때 빈 catch 블록 안에 주석이 있으면 검사에서 제외 (의도적 에러 무시 표현) */
+  emptyCatchIgnoreCommented: boolean;
   anyType: boolean;
   paramCount: boolean;
   functionLength: boolean;

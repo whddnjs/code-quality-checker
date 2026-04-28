@@ -2,7 +2,7 @@
   "name": "code-quality-checker",
   "displayName": "Code Quality Checker",
   "description": "TypeScript 코드 품질 간편 점검 - 빈 메소드, 미사용 import, TODO/console, switch/catch/any 등",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "jw",
   "license": "MIT",
   "author": "whddnjs",
@@ -124,6 +124,11 @@
         "codeQuality.rules.emptyCatch": {
           "type": "boolean",
           "default": true
+        },
+        "codeQuality.rules.emptyCatchIgnoreCommented": {
+          "type": "boolean",
+          "default": false,
+          "description": "true면 빈 catch 안에 주석이 있으면 검사에서 제외 (의도적 에러 무시 표현 봐주기)."
         },
         "codeQuality.rules.anyType": {
           "type": "boolean",

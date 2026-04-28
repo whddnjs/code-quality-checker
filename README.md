@@ -19,15 +19,19 @@ TypeScript 프로젝트를 가볍게 점검하는 VSCode 익스텐션. 한 번�
 | `any-type` | 명시적 `any` 타입 | |
 | `param-count` | 파라미터 개수 초과 (기본 > 4) | |
 | `function-length` | 함수 라인 수 초과 (기본 > 50) | |
-| `nesting-depth` | 중첩 깊이 초과 (기본 > 4) | |
+| `nesting-depth` | 중첩 깊이 초과 (기본 > 4, `else if` 체인은 같은 레벨로 측정) | |
 
 ### 상세 옵션
 - **빈 메소드** — 기본은 이름있는 함수/메소드만. 옵션 켜면 생성자/getter/setter/익명 함수까지 포함
+- **빈 메소드 - 본문 주석 봐주기** — 옵션 켜면 본문이 비어있어도 안에 주석이 있으면 검사 제외 (상속 훅 등 의도된 빈 본문)
+- **빈 catch - 본문 주석 봐주기** — 옵션 켜면 빈 catch 안에 주석이 있으면 검사 제외 (의도적 에러 무시 표현)
 - **사용하지 않는 변수** — 기본은 `*.spec.ts` 파일 제외. 옵션 켜면 spec 파일도 검사
 - **console 호출** — 기본은 `console.log`만. 다른 메소드(`warn`, `error`, ...)는 개별 체크박스로 추가
+- **TODO 주석 - 콜론 형태만** — `TODO:`, `FIXME(name):`, `XXX :` 같이 콜론이 따라오는 경우만 검출. `// === XXX 케이스 ===` 같은 헤더 주석에서 잘못 잡히지 않음
 - **사용하지 않는 변수 - rest 패턴 인식** — `const { ITEMS, ...rest } = obj`처럼 rest 구조분해의 비-rest 바인딩은 "의도적 제외"로 보고 flag하지 않음
-- **사용하지 않는 파일 - 자동 엔트리 제외** — `index.ts`, `main.ts`, `*.spec.ts`, `*.test.ts`, `*.d.ts`, `*.module.ts`는 import 안 돼도 flag 안 함
+- **사용하지 않는 파일 - 자동 엔트리 제외** — `index.ts`, `main.ts`, `*.spec.ts`, `*.test.ts`, `*.e2e.ts`, `*.d.ts`, `*.module.ts`, `*.stories.ts`, `*.config.ts`는 import 안 돼도 flag 안 함
 - **사용하지 않는 파일 - tsconfig path alias 지원** — `tsconfig.json`의 `paths`/`baseUrl`을 자동으로 읽어 `@/utils/foo` 같은 alias도 정확히 해석
+- **any 타입 - 위치별 메시지** — `as any` / `Array<any>` / 파라미터·리턴·변수·프로퍼티 위치를 구분해서 표시
 
 ## 사용
 
@@ -83,6 +87,7 @@ TypeScript 프로젝트를 가볍게 점검하는 VSCode 익스텐션. 한 번�
   "codeQuality.rules.mergeConflict": true,
   "codeQuality.rules.emptyMethod": true,
   "codeQuality.rules.emptyMethodIncludeAnonymous": false,
+  "codeQuality.rules.emptyMethodIgnoreCommented": false,
   "codeQuality.rules.unusedImport": true,
   "codeQuality.rules.unusedVariable": true,
   "codeQuality.rules.unusedVariableIncludeSpec": false,
@@ -91,6 +96,7 @@ TypeScript 프로젝트를 가볍게 점검하는 VSCode 익스텐션. 한 번�
   "codeQuality.rules.consoleMethods": ["log"],      // ["log", "warn", "error"] 등
   "codeQuality.rules.smallSwitch": true,
   "codeQuality.rules.emptyCatch": true,
+  "codeQuality.rules.emptyCatchIgnoreCommented": false,
   "codeQuality.rules.anyType": true,
   "codeQuality.rules.paramCount": true,
   "codeQuality.rules.functionLength": true,
@@ -115,8 +121,10 @@ TypeScript 프로젝트를 가볍게 점검하는 VSCode 익스텐션. 한 번�
 
 ## 알려진 한계
 
-- `unusedVariable`은 파일 단위 분석이라 함수 간 동일 이름 충돌 시 사용으로 간주됨 (false negative 허용)
+- `unusedVariable` / `unusedFunction`은 파일 단위 분석이라 함수 간 동일 이름이 있으면 사용으로 간주됨 (예: outer/inner 같은 이름의 함수가 있으면 outer 미사용도 통과 — false negative 허용)
 - `unusedFile`은 문자열 참조(`templateUrl: './foo.html'` 같은 Angular 스타일)는 감지하지 못함
+- `unusedFile`은 첫 스캔 파일 기준으로 한 번만 tsconfig를 로드함 — 모노레포처럼 여러 tsconfig가 있는 프로젝트에선 일부 alias 해석이 빠질 수 있음
+- `anyType`은 명시적 `any`만 검출. implicit any는 타입체커가 필요해 미지원
 - Quick Fix는 `unused-import`, `unused-variable`, `todo-comment`, `console-call`만 지원
 
 ## 개발

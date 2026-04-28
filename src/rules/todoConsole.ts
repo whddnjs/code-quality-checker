@@ -1,7 +1,11 @@
 import * as ts from "typescript";
 import { RuleContext } from "../types";
 
-const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b/;
+// 헤더/섹션 주석(`// === XXX 테스트 ===`)에서의 false positive를 막기 위해
+// 마커 뒤에 콜론(:)이 따라오는 형태만 매칭. `(name)` 같은 작성자 표기는 허용.
+// 매칭: `TODO:`, `// FIXME(jw): bar`, `XXX :`, `HACK(team): tmp`
+// 비매칭: `// === XXX 케이스 ===`, `// TODO 정리` (콜론 없음)
+const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b(?:\s*\([^)]*\))?\s*:/;
 
 /**
  * TODO/FIXME 등 주석 마커 탐지.

@@ -10,7 +10,15 @@ export function checkSmallSwitch(node: ts.Node, ctx: RuleContext): void {
   if (!ctx.config.smallSwitch) return;
   if (!ts.isSwitchStatement(node)) return;
   const caseCount = node.caseBlock.clauses.filter((c) => ts.isCaseClause(c)).length;
-  if (caseCount <= 2) {
+  if (caseCount === 0) {
+    // case 없이 default만 있는 switch — if/else가 아니라 본문 하나로 풀어쓰면 됨
+    pushIssue(
+      ctx,
+      "smallSwitch",
+      node,
+      "default만 있는 switch — switch 자체를 제거하고 본문으로 풀어쓰기"
+    );
+  } else if (caseCount <= 2) {
     pushIssue(
       ctx,
       "smallSwitch",
